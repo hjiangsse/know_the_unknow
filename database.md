@@ -56,7 +56,7 @@ make
 sudo make install  
 
 ## The real-time clickhouse
-	Since the updates in clickhouse are asynchronous, we can't see the updates of records in realtime.
+Since the updates in clickhouse are asynchronous, we can't see the updates of records in realtime.
 So we have to insert a new modified record instead, and we must find a way to find the lastest one.
 
 ### Replacing Merge Tree
