@@ -108,7 +108,14 @@ Now we have more than 1800w rows(some are old, some are new). If we want to see 
 ```
 SELECT count() FROM alerts FINAL
 ```
-![table insert](./pics/database/final_select_count.png)
+![table select](./pics/database/final_select_count.png)
+
+select use one of primary key and filter
+```
+SELECT count(), sum(cityHash64(*)) AS data FROM alerts FINAL WHERE (tenant_id = 451) AND (NOT acked)
+```
+![table select](./pics/database/select_with_primary_key.png)
+
 
 ### Aggregate Functions
 ### Aggregating Merge Tree
