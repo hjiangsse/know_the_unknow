@@ -116,6 +116,10 @@ SELECT count(), sum(cityHash64(*)) AS data FROM alerts FINAL WHERE (tenant_id = 
 ```
 ![table select](./pics/database/select_with_primary_key.png)
 
+we can see, select with a primary key and a filter can much decrease the "searched rows".
+why is it fast this time? The difference is in the filter condition. 
+‘tenant_id’ is a part of a primary key, so ClickHouse can filter data before FINAL. 
+In this case, *ReplacingMergeTree* becomes efficient.
 
 ### Aggregate Functions
 ### Aggregating Merge Tree
