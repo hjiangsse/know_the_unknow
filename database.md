@@ -103,6 +103,12 @@ FROM alerts WHERE cityHash64(alert_id) % 99 != 0;
 The insert result:
 ![table insert](./pics/database/insert_new_rows.png)
 ![table insert](./pics/database/count_after_insert.png)
+Now we have more than 1800w rows(some are old, some are new).
+If we want to see the newest rows, use the *FINAL* select
+```
+SELECT count() FROM alerts FINAL
+```
+![table insert](./pics/database/final_select_count.png)
 
 ### Aggregate Functions
 ### Aggregating Merge Tree
