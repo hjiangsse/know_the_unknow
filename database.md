@@ -122,4 +122,49 @@ why is it fast this time? The difference is in the filter condition.
 In this case, *ReplacingMergeTree* becomes efficient.
 
 ### Aggregate Functions
+Let's check the previous select again! 
+```
+SELECT count(), sum(cityHash64(*)) AS data FROM alerts FINAL WHERE (tenant_id = 451) AND (NOT acked)
+```
+Let see how we can use aggregate functions(聚集函数) to accelerate the select process.
+check the "update insert query" again.
+```
+INSERT INTO alerts (tenant_id, alert_id, timestamp, alert_data, acked, ack_user, ack_time)
+SELECT tenant_id, alert_id, timestamp, alert_data, 
+  1 as acked,
+  concat('user', toString(rand()%1000)) as ack_user,
+  now() as ack_time
+FROM alerts WHERE cityHash64(alert_id) % 99 != 0;
+```
+*acked* change from 0 to 1
+*ack_user* change from '' t0 'userxxx'
+*ack_time* change from 0 to Now
+all change are "inscreasing", we can use *max* aggregate functions
+
+```
+SELECT count(), sum(cityHash64(*)) data FROM 
+  SELECT tenant_id, alert_id, timestamp, 
+    any(alert_data) alert_data, 
+    max(acked) acked, 
+    max(ack_time) ack_time,
+    max(ack_user) ack_user
+  FROM alerts
+  GROUP BY tenant_id, alert_id, timestamp
+WHERE tenant_id=451 AND NOT acked;
+```
 ### Aggregating Merge Tree
+```
+DROP TABLE alerts_amt_max;
+CREATE TABLE alerts_amt_max (
+  tenant_id     UInt32,
+  alert_id      String,
+  timestamp     DateTime Codec(Delta, LZ4),
+  alert_data    SimpleAggregateFunction(max, String),
+  acked         SimpleAggregateFunction(max, UInt8),
+  ack_time      SimpleAggregateFunction(max, DateTime),
+  ack_user      SimpleAggregateFunction(max, LowCardinality(String))
+)
+Engine = AggregatingMergeTree()
+ORDER BY (tenant_id, timestamp, alert_id);
+```
+The aggrating merge tree will keep data size smaller.
