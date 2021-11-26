@@ -96,5 +96,31 @@ cmake ..
 make  
 sudo make install  
 
-## The real-time clickhouse build
+## The real-time clickhouse
+	Since the updates in clickhouse are asynchronous, we can't see the updates of records in realtime.
+So we have to insert a new modified record instead, and we must find a way to find the lastest one.
 
+### Replacing Merge Tree
+1. create a table use "ReplacingMergeTree" as the engine
+```
+CREATE TABLE alerts(
+  tenant_id     UInt32,
+  alert_id      String,
+  timestamp     DateTime Codec(Delta, LZ4),
+  alert_data    String,
+  acked         UInt8 DEFAULT 0,
+  ack_time      DateTime DEFAULT toDateTime(0),
+  ack_user      LowCardinality(String) DEFAULT ''
+)
+ENGINE = ReplacingMergeTree(ack_time)
+PARTITION BY tuple()
+ORDER BY (tenant_id, timestamp, alert_id);
+```
+In the previous table, two "rows" with the same (tenant_id, timestamp, alert_id) will be regard as 
+the same record, the "newer" version of the record will replace the old one. The 'newness' is 
+determined by 'ack_time' in this case;
+
+![table created](./pics/database/replacing_merge_tree.png)
+
+### Aggregate Functions
+### Aggregating Merge Tree
