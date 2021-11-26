@@ -44,47 +44,6 @@ clickhouse-client --password='jiang186212' --format_csv_delimiter="," --max_inse
 ### python package(clickhouse-driver)
 pip install clickhouse-driver -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-### concurrency problem:
-On a 8 core mechine, sequence read is better than cocurrent read. (How about a 120 core mechine? YTM!)  
-Update: What you see is wrong! please use more big block size!
-
-### concurrent test:
-#---------------------------------------------  
-poolsize = core_number / 2  
-blocksize = core_numer * 2  
-
-time:  31.494286060333252  
-time:  30.764371395111084  
-time:  31.367915153503418  
-time:  31.27149200439453  
-time:  30.45405125617981  
-time:  30.330586433410645  
-time:  30.621195793151855  
-time:  31.257272243499756  
-time:  30.622308015823364  
-time:  31.576156616210938  
-avg_tm:  30.975963497161864  
-
-#---------------------------------------------  
-poolsize = core_number / 4  
-blocksize = core_numer * 2  
-
-time:  36.21045517921448  
-time:  34.0615930557251  
-time:  29.471998691558838  
-time:  28.961904287338257  
-time:  42.42263865470886  
-time:  30.65553307533264  
-time:  36.3575325012207  
-time:  29.724627256393433  
-time:  30.105841398239136  
-time:  37.22924876213074  
-avg_tm:  33.52013728618622  
-
-#---------------------------------------------  
-poolsize = core_number / 1  
-blocksize = core_numer * 2  
-
 ### benchmark:
 clickhouse-benchmark --query="select * from factor_database.factor_big_table1" -i 10 -h 192.168.222.220
 
@@ -121,6 +80,29 @@ the same record, the "newer" version of the record will replace the old one. The
 determined by 'ack_time' in this case;
 
 ![table created](./pics/database/replacing_merge_tree.png)
+
+fill the table with some data:
+```
+INSERT INTO alerts (tenant_id, alert_id, timestamp, alert_data) SELECT
+    toUInt32((rand(1) % 1000) + 1) AS tenant_id,
+    randomPrintableASCII(64) AS alert_id,
+    toDateTime('2020-01-01 00:00:00') + (rand(2) % ((3600 * 24) * 30)) AS timestamp,
+    randomPrintableASCII(1024) AS alert_data
+FROM numbers(10000000)
+```
+
+Then change 90% rows, not update but insert new rows:
+```
+INSERT INTO alerts (tenant_id, alert_id, timestamp, alert_data, acked, ack_user, ack_time)
+SELECT tenant_id, alert_id, timestamp, alert_data, 
+  1 as acked,
+  concat('user', toString(rand()%1000)) as ack_user,
+  now() as ack_time
+FROM alerts WHERE cityHash64(alert_id) % 99 != 0;
+```
+The insert result:
+![table insert](./pics/database/insert_new_rows.png)
+![table insert](./pics/database/count_after_insert.png)
 
 ### Aggregate Functions
 ### Aggregating Merge Tree
