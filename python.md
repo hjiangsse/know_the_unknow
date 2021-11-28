@@ -30,3 +30,11 @@ insert_stamps_list = list(insert_stamps_filtered)
 
 filtered_data = data.filter(items = insert_stamps_list, axis=0)
 ```
+
+# python function decorators
+## functions as first class objects in python
+1. A function is an instance of the Object type.
+2. You can store the function in a variable.
+3. You can pass the function as a parameter to another function.
+4. You can return the function from a function.
+5. You can store them in data structures such as hash tables, lists, …
