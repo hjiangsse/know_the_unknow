@@ -1,10 +1,10 @@
-# about python package:
+# 1. About python package:
 ## pack a python package:
     a good link page i know to pack a package:  https://packaging.python.org/tutorials/packaging-projects/
 ## install python package faster
     pip install --force-reinstall rdsp_client-0.0.4-py3-none-any.whl -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# panda dataframe
+# 2. Panda dataframe
 ## pandas data frame filter by index
 a pandas dataframe *data*:
                          open     close      high       low     value    volume
@@ -31,10 +31,103 @@ insert_stamps_list = list(insert_stamps_filtered)
 filtered_data = data.filter(items = insert_stamps_list, axis=0)
 ```
 
-# python function decorators
-## functions as first class objects in python
+# 3. python function decorators
+## 3.1 functions as first class objects in python
 1. A function is an instance of the Object type.
 2. You can store the function in a variable.
 3. You can pass the function as a parameter to another function.
 4. You can return the function from a function.
 5. You can store them in data structures such as hash tables, lists, …
+
+``` python
+#test function as the first class object
+def reverse_sentence(sentence):
+    splited = sentence.split()
+    splited.reverse()
+    return ' '.join(splited)
+
+print(reverse_sentence("Principles Techniques and Tools of Compilers"))
+
+symbols_reverse = reverse_sentence
+print(symbols_reverse("Principles Techniques and Tools of Compilers"))
+
+def upper_sentence(sentence):
+    return sentence.upper()
+
+print(upper_sentence("Principles Techniques and Tools of Compilers"))
+
+#function(s) as parameters as other function
+def sentence_factory(funcs, sentence):
+    for func in funcs:
+        sentence = func(sentence)
+    return sentence
+
+print(sentence_factory([reverse_sentence, upper_sentence], "Principles Techniques and Tools of Compilers"))
+
+#return function from a function
+def create_square_sum():
+    def square_sum(x, y):
+        return x * x + y * y
+    return square_sum
+
+square_sum = create_square_sum()
+print(square_sum(1,2))
+```
+
+## 3.2 decorator as a way of modify the behaviour of functions and classes
+The syntax of a function decorator: 
+``` python
+@gfg_decorator
+def hello_decorator():
+    print("Gfg")
+
+"""
+Above code is equivalent to -
+
+def hello_decorator():
+    print("Gfg")
+    
+hello_decorator = gfg_decorator(hello_decorator)
+"""
+```
+The example of a simple decorator:
+``` python
+# defining a decorator
+def hello_decorator(func):
+    def inner1():
+        print("Hello, this is before function execution")
+        func()
+        print("This is after function execution")
+    return inner1
+ 
+# defining a function, to be called inside wrapper
+def function_to_be_used():
+    print("This is inside the function !!")
+
+function_to_be_used = hello_decorator(function_to_be_used) 
+# calling the function
+function_to_be_used()
+```
+A decorator as timer for a function:
+``` python
+import time
+import math
+ 
+# decorator to calculate duration
+# taken by any function.
+def calculate_time(func):
+    def inner1(*args, **kwargs):
+        begin = time.time()
+        func(*args, **kwargs)
+        end = time.time()
+        print("Total time taken in : ", func.__name__, end - begin)
+    return inner1
+
+@calculate_time
+def factorial(num):
+    time.sleep(2)
+    print(math.factorial(num))
+ 
+# calling the function.
+factorial(10)
+```
