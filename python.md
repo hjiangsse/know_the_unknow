@@ -6,7 +6,7 @@
 
 # 2. Panda dataframe
 ## pandas data frame filter by index
-a pandas dataframe *data*:
+a pandas dataframe *data*:  
                          open     close      high       low     value    volume  
 2005-01-01 09:00:00  0.552438  0.280006  0.332489  0.864800  0.474178  0.827809  
 2005-01-01 09:01:00  0.338546  0.654993  0.659209  0.888915  0.480564  0.651820  
