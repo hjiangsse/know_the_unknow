@@ -263,15 +263,18 @@ Role contains:
 * List of assigned roles
 Privileges can be granted to a role by the GRANT query. To revoke privileges from a role ClickHouse provides the REVOKE query.
 
-1. syntax:
+1. create syntax:
 ```
 CREATE ROLE [IF NOT EXISTS | OR REPLACE] name1 [, name2 ...]
     [SETTINGS variable [= value] [MIN [=] min_value] [MAX [=] max_value] [READONLY|WRITABLE] | PROFILE 'profile_name'] [,...]
 ```
-2. Managing roles:
-created --> assign to one user
-admin can set default role to users
 
+2. grant privileges to user or role:
+```
+GRANT [ON CLUSTER cluster_name] privilege[(column_name [,...])] [,...] ON {db.table|db.*|*.*|table|*} TO {user | role | CURRENT_USER} [,...] [WITH GRANT OPTION] [WITH REPLACE OPTION]
+```
+
+3. Managing roles:
 Set multiple default roles to a user:
 ```
 SET DEFAULT ROLE role1, role2, ... TO user
