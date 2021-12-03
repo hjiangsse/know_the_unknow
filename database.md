@@ -262,3 +262,32 @@ Role contains:
 * Settings and constraints
 * List of assigned roles
 Privileges can be granted to a role by the GRANT query. To revoke privileges from a role ClickHouse provides the REVOKE query.
+
+1. syntax:
+```
+CREATE ROLE [IF NOT EXISTS | OR REPLACE] name1 [, name2 ...]
+    [SETTINGS variable [= value] [MIN [=] min_value] [MAX [=] max_value] [READONLY|WRITABLE] | PROFILE 'profile_name'] [,...]
+```
+2. Managing roles:
+created --> assign to one user
+admin can set default role to users
+
+Set multiple default roles to a user:
+```
+SET DEFAULT ROLE role1, role2, ... TO user
+```
+
+Set all the granted roles as default to a user:
+```
+SET DEFAULT ROLE ALL TO user
+```
+
+Purge default roles from a user:
+```
+SET DEFAULT ROLE NONE TO user
+```
+
+Set all the granted roles as default excepting some of them:
+```
+SET DEFAULT ROLE ALL EXCEPT role1, role2 TO user
+```
