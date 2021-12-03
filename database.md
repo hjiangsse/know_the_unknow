@@ -1,5 +1,5 @@
-# clickhouse
-## Some basic ops
+# 1. clickhouse
+## 1.1 Some basic oprations
 ### install and start(debian)
 sudo apt-get install apt-transport-https ca-certificates dirmngr  
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E0C56BD4  
@@ -55,7 +55,7 @@ cmake ..
 make  
 sudo make install  
 
-## The real-time clickhouse
+## 1.2 The real-time clickhouse
 Since the updates in clickhouse are asynchronous, we can't see the updates of records in realtime.
 So we have to insert a new modified record instead, and we must find a way to find the lastest one.
 
@@ -168,3 +168,75 @@ Engine = AggregatingMergeTree()
 ORDER BY (tenant_id, timestamp, alert_id);
 ```
 The aggrating merge tree will keep data size smaller.
+
+## 1.3 Access control in clickhouse
+### 1.3.1 Enabling SQL-driven Access Control and Account Management
+open */etc/clickhouse-server/users.xml*, find the following line:
+<!-- User can create other users and grant rights to them. -->
+<!-- <access_management>1</access_management> -->
+uncomment the second line.  
+then restart the clickhosue-server,  
+sudo service clickhouse-server restart
+
+### 1.3.2 Create admin user for the server:
+1. admin user:
+create user admin IDENTIFIED WITH plaintext_password BY 'Life123'
+2. grant full permission to the admin user:
+GRANT ALL ON *.* TO admin WITH GRANT OPTION
+3. disable the *default* user:
+
+### 1.3.3 create normal user by admin user:
+1. create syntax:
+CREATE USER [IF NOT EXISTS | OR REPLACE] name1 [ON CLUSTER cluster_name1]
+        [, name2 [ON CLUSTER cluster_name2] ...]
+    [NOT IDENTIFIED | IDENTIFIED {[WITH {no_password | plaintext_password | sha256_password | sha256_hash | double_sha1_password | double_sha1_hash}] BY {'password' | 'hash'}} | {WITH ldap SERVER 'server_name'} | {WITH kerberos [REALM 'realm']}]
+    [HOST {LOCAL | NAME 'name' | REGEXP 'name_regexp' | IP 'address' | LIKE 'pattern'} [,...] | ANY | NONE]
+    [DEFAULT ROLE role [,...]]
+    [DEFAULT DATABASE database | NONE]
+    [GRANTEES {user | role | ANY | NONE} [,...] [EXCEPT {user | role} [,...]]]
+    [SETTINGS variable [= value] [MIN [=] min_value] [MAX [=] max_value] [READONLY | WRITABLE] | PROFILE 'profile_name'] [,...]
+	
+2. examples:
+Create the user account mira protected by the password qwerty:
+CREATE USER mira HOST IP '127.0.0.1' IDENTIFIED WITH sha256_password BY 'qwerty';
+mira should start client app at the host where the ClickHouse server runs.
+
+Create the user account john, assign roles to it and make this roles default:
+CREATE USER john DEFAULT ROLE role1, role2;
+
+Create the user account john and make all his future roles default:
+CREATE USER john DEFAULT ROLE ALL;
+When some role is assigned to john in the future, it will become default automatically.
+
+Create the user account john and make all his future roles default excepting role1 and role2:
+CREATE USER john DEFAULT ROLE ALL EXCEPT role1, role2;
+
+Create the user account john and allow him to grant his privileges to the user with jack account:
+CREATE USER john GRANTEES jack;
+	
+### 1.3.4 alter user access permissons:
+Set assigned roles as default:
+ALTER USER user DEFAULT ROLE role1, role2
+If roles aren’t previously assigned to a user, ClickHouse throws an exception.
+
+Set all the assigned roles to default:
+ALTER USER user DEFAULT ROLE ALL
+If a role is assigned to a user in the future, it will become default automatically.
+
+Set all the assigned roles to default, excepting role1 and role2:
+ALTER USER user DEFAULT ROLE ALL EXCEPT role1, role2
+
+Allows the user with john account to grant his privileges to the user with jack account:
+ALTER USER john GRANTEES jack;
+
+### 1.3.5 drop and show users
+DROP USER [IF EXISTS] name [,...] [ON CLUSTER cluster_name]
+SHOW USERS
+
+### 1.3.6 role in clickhouse
+Role is a container for access entities that can be granted to a user account.
+Role contains:
+* Privileges
+* Settings and constraints
+* List of assigned roles
+Privileges can be granted to a role by the GRANT query. To revoke privileges from a role ClickHouse provides the REVOKE query.
