@@ -273,8 +273,20 @@ CREATE ROLE [IF NOT EXISTS | OR REPLACE] name1 [, name2 ...]
 ```
 GRANT [ON CLUSTER cluster_name] privilege[(column_name [,...])] [,...] ON {db.table|db.*|*.*|table|*} TO {user | role | CURRENT_USER} [,...] [WITH GRANT OPTION] [WITH REPLACE OPTION]
 ```
+examples:
+```
+GRANT SELECT(x,y) ON db.table TO john WITH GRANT OPTION
+```
+It means that john has the permission to execute:
+* SELECT x,y FROM db.table.
+* SELECT x FROM db.table.
+* SELECT y FROM db.table.
 
-3. Managing roles:
+3. privileges: 
+grant select on db.table for roles
+set default 
+
+4. Managing roles:
 Set multiple default roles to a user:
 ```
 SET DEFAULT ROLE role1, role2, ... TO user
