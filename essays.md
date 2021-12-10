@@ -1,0 +1,2 @@
+# From <<The Ruricolist>> by Paul M. Rodriguez
+In short the loser is a bad actor playing himself. Nothing feels real to him unless he is playing to the balcony. In the beginning, he tries too hard; and every time someone leaves, he tries a little harder. In the end the seats are empty and there he is, alone on the stage, the singularity where tragedy and comedy meet: the clown who does not know he is a clown. 
