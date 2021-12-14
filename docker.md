@@ -94,3 +94,12 @@ Resources:
 Endpoint Mode:  vip
 ```
 you can remove the *--pretty*, then the messages will be reported in a json format.
+
+Also, you want to know which is your service's working node:
+```
+docker service ps helloworld
+
+ID             NAME           IMAGE           NODE         DESIRED STATE   CURRENT STATE            ERROR     PORTS
+2wxw6bb34qqw   helloworld.1   alpine:latest   jingle-246   Running         Running 17 minutes ago
+mr2ia0snv75a   helloworld.2   alpine:latest   jingle-245   Running         Running 18 minutes ago
+```
