@@ -65,3 +65,32 @@ $docker service ls
 ID             NAME         MODE         REPLICAS   IMAGE           PORTS
 sx6ye6p8ldog   helloworld   replicated   2/2        alpine:latest
 ```
+## 5.5 inspect the service you just created:
+``` bash 
+docker service inspect --pretty helloworld
+
+ID:             sx6ye6p8ldogf8muqy2w579kf
+Name:           helloworld
+Service Mode:   Replicated
+ Replicas:      2
+Placement:
+UpdateConfig:
+ Parallelism:   1
+ On failure:    pause
+ Monitoring Period: 5s
+ Max failure ratio: 0
+ Update order:      stop-first
+RollbackConfig:
+ Parallelism:   1
+ On failure:    pause
+ Monitoring Period: 5s
+ Max failure ratio: 0
+ Rollback order:    stop-first
+ContainerSpec:
+ Image:         alpine:latest@sha256:21a3deaa0d32a8057914f36584b5288d2e5ecc984380bc0118285c70fa8c9300
+ Args:          ping docker.com
+ Init:          false
+Resources:
+Endpoint Mode:  vip
+```
+you can remove the *--pretty*, then the messages will be reported in a json format.
