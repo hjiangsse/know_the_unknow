@@ -133,3 +133,247 @@ def factorial(num):
 # calling the function.
 factorial(10)
 ```
+
+# 4. Do profile in python：
+## 4.1 cProfile:
+### Introduction:
+cProfile and profile provide deterministic profiling of Python programs. A profile is a set of statistics that describes how often and for how long various parts of the program executed. These statistics can be formatted into reports via the *pstats* module.
+### Basic Usage:
+#### profile a function
+Run the following code snippet:
+``` python
+import cProfile
+
+def accsum(n):
+    """acc sum"""
+    res = 0
+    for i in range(n):
+        res += (i+1)
+    return res
+
+if __name__ == "__main__":
+    cProfile.run('accsum(10000000)')
+```
+
+*accsum* is a function to calculate the cumulative sum of the number from 1 to n(n > 1), we use cProfile to profile this function, follow is running result and my mechine messages:
+``` bash
+  4 function calls in 0.531 seconds
+
+   Ordered by: standard name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.531    0.531 <string>:1(<module>)
+        1    0.531    0.531    0.531    0.531 cpython_test.py:3(accsum)
+        1    0.000    0.000    0.531    0.531 {built-in method builtins.exec}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+```
+
+* ncalls: number of calls of the function[3/1 stand 1 call but 3 recur call]
+* tottime: total time spend in the function, not include time spend in sub functions
+* percall: tottime / calls
+* cumtime: cumulative time spend in this function and subfunctions(even for recur functions)
+* percall: cumtime / calls
+* filename:lineno(function): which function in which file's which line
+  
+#### use *pstat* module's Stat to manipulate profile result:
+Change privious code, this will generate a cumsum.stat file in current work directory:
+``` python
+if __name__ == "__main__":
+    cProfile.run('accsum(10000000)', 'cumsum.stat')
+```
+
+Write a new script to analysize profile result
+``` python
+import pstats
+from pstats import SortKey
+
+if __name__ == "__main__":
+    p = pstats.Stats('cumsum.stat')
+    p.strip_dirs().sort_stats(-1).print_stats()
+    p.sort_stats(SortKey.NAME).print_stats()
+    p.sort_stats(SortKey.CUMULATIVE).print_stats()
+    p.sort_stats(SortKey.TIME).print_stats()
+```
+The running result is:
+``` bash
+Fri Dec 31 09:02:46 2021    cumsum.stat
+
+         4 function calls in 0.531 seconds
+
+   Ordered by: standard name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.531    0.531 <string>:1(<module>)
+        1    0.531    0.531    0.531    0.531 cpython_test.py:3(accsum)
+        1    0.000    0.000    0.531    0.531 {built-in method builtins.exec}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
+Fri Dec 31 09:02:46 2021    cumsum.stat
+
+         4 function calls in 0.531 seconds
+
+   Ordered by: function name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.531    0.531 {built-in method builtins.exec}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.531    0.531 <string>:1(<module>)
+        1    0.531    0.531    0.531    0.531 cpython_test.py:3(accsum)
+
+
+Fri Dec 31 09:02:46 2021    cumsum.stat
+
+         4 function calls in 0.531 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.531    0.531 {built-in method builtins.exec}
+        1    0.000    0.000    0.531    0.531 <string>:1(<module>)
+        1    0.531    0.531    0.531    0.531 cpython_test.py:3(accsum)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
+Fri Dec 31 09:02:46 2021    cumsum.stat
+
+         4 function calls in 0.531 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.531    0.531    0.531    0.531 cpython_test.py:3(accsum)
+        1    0.000    0.000    0.531    0.531 {built-in method builtins.exec}
+        1    0.000    0.000    0.531    0.531 <string>:1(<module>)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+```
+#### profile a full script or a module
+``` bash
+python -m cProfile [-o output_file] [-s sort_order] (-m module | myscript.py)
+```
+
+* -o: wirte the profile result to a file
+* -s: how to sort the profile result
+* -m: module name
+
+We add another function to the code snippet:
+``` bash
+import cProfile
+
+def acc_sum(n):
+    """acc sum"""
+    res = 0
+    for i in range(n):
+        res += (i+1)
+    return res
+
+def acc_square_sum(n):
+    """acc square sum"""
+    res = 0
+    for i in range(n):
+        res += (i+1) * (i+1)
+    return res
+
+if __name__ == "__main__":
+    acc_sum(1000000)
+    acc_square_sum(1000000)
+```
+
+run follwing command:
+``` bash
+python -m cProfile -s tottime cpython_test.py
+```
+running result:
+``` bash
+         279 function calls (278 primitive calls) in 0.148 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.094    0.094    0.094    0.094 cpython_test.py:10(acc_square_sum)
+        1    0.053    0.053    0.053    0.053 cpython_test.py:3(acc_sum)
+        6    0.000    0.000    0.000    0.000 {built-in method nt.stat}
+        1    0.000    0.000    0.000    0.000 {built-in method io.open_code}
+        4    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1431(find_spec)
+        1    0.000    0.000    0.000    0.000 {built-in method marshal.loads}
+        1    0.000    0.000    0.000    0.000 {method 'read' of '_io.BufferedReader' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:969(get_data)
+       20    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:62(_path_join)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.__build_class__}
+       20    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:64(<listcomp>)
+        1    0.000    0.000    0.148    0.148 cpython_test.py:1(<module>)
+```
+OK! the result is sorted by *tottime*!
+## 4.2 line-by-line profile:
+### install line-profiler:
+``` bash
+pip install line_profiler
+```
+### do line profile:
+``` python
+def acc_square_add(n):
+    """acc square sum"""
+    res = 0
+    for i in range(n):
+        res += (i+1) * (i+1)
+    return res
+
+@profile
+def slow_function():
+    print("slow function begin")
+    acc_square_add(10000000)
+    print("slow function end")
+
+if __name__ == "__main__":
+    slow_function()
+```
+
+run the following command:
+``` bash
+kernprof -l -v line_profiler_test.py
+```
+"-v" will show the result in the stdout, this is the result:
+``` bash
+slow function begin
+slow function end
+Wrote profile results to line_profiler_test.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 2.51533 s
+File: line_profiler_test.py
+Function: slow_function at line 8
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     8                                           @profile
+     9                                           def slow_function():
+    10         1         84.0     84.0      0.0      print("slow function begin")
+    11         1    2515077.9 2515077.9    100.0      acc_square_add(10000000)
+    12         1        169.8    169.8      0.0      print("slow function end")
+```
+You can easily find *acc_square_add* is the bottleneck of our *slow_function*.
+Also kernprof will generate a *.lprof* in current working directory, we can 
+check it use the following command:
+``` bash
+python -m line_profiler line_profiler_test.py.lprof
+```
+the running result:
+``` bash
+Timer unit: 1e-06 s
+
+Total time: 2.51533 s
+File: line_profiler_test.py
+Function: slow_function at line 8
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     8                                           @profile
+     9                                           def slow_function():
+    10         1         84.0     84.0      0.0      print("slow function begin")
+    11         1    2515077.9 2515077.9    100.0      acc_square_add(10000000)
+    12         1        169.8    169.8      0.0      print("slow function end")
+```
+Same as the privious running result!
+
+# 5. Python grpc:
+python -m grpc_tools.protoc -I../proto --python_out=. --grpc_python_out=. ../proto/service.proto

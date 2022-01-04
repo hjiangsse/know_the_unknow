@@ -1,8 +1,18 @@
-# 1. run
+# 1. Some basic management commnad:
+## 1.1 running
 docker run -it image:latest bash
 docker exec -it 22130ae45700[container id] bash
-# 2. copy file to container(or reverse)
-# 3. start two terminal login to the same container
+## image delete
+delete all images in this mechine:
+```bash
+docker rmi -f $(docker images -q)
+```
+delete images which name have a substring "clickhouse":
+``` bash
+docker images | grep clickhouse | tr -s ' ' | cut -d ' ' -f 3 | xargs docker image rm
+```
+# 2. Copy file to container(or reverse)
+# 3. Start two terminal login to the same container
 docker run -it ubuntu bash
 docker exec -it {docker id} bash
 
@@ -134,7 +144,7 @@ vtb5advbo1hh   helloworld.5   alpine:latest   jingle-nas-221   Running         R
 ```
 ## 5.7 delete the service in the swarm:
 ```
- sudo docker service rm helloworld
+sudo docker service rm helloworld
 helloworld
 ```
 Now inspect the *helloworld* service:
@@ -250,3 +260,23 @@ skb5fstmv1x5    \_ redis.2   redis:3.0.6   jingle-246       Shutdown        Shut
 jmfhokb3rbpl   redis.3       redis:3.0.7   jingle-nas-221   Running         Running 8 minutes ago
 ru8ehvz3uzeb    \_ redis.3   redis:3.0.6   jingle-nas-221   Shutdown        Shutdown 8 minutes ago
 ```
+
+## 5.9 drain a node in swarm:
+docker node update --availability drain ca5a7h8zrfme0zrtmy588p2xo
+# 6. Deploy a stack to a swarm
+## 6.1 Setup a docker registry on the swarm:
+
+# 7. How docker manage storage?
+# 8. Build out a docker image then upload to Docker Hub.
+Build and push a container image to Docker Hub from your computer
+Start by creating a Dockerfile to specify your application as shown below:
+
+```
+# syntax=docker/dockerfile:1
+FROM busybox
+CMD echo "Hello world! This is my first Docker image."
+
+```
+* Run docker build -t <your_username>/my-private-repo . to build your Docker image.
+* Run docker run <your_username>/my-private-repo to test your Docker image locally.
+* Run docker push <your_username>/my-private-repo to push your Docker image to Docker Hub. You should see output similar to:

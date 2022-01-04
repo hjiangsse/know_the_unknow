@@ -1,4 +1,4 @@
-# 1. clickhouse
+# 1. Clickhouse
 ## 1.1 Some basic oprations
 ### install and start(debian)
 sudo apt-get install apt-transport-https ca-certificates dirmngr  
@@ -307,7 +307,10 @@ Set all the granted roles as default excepting some of them:
 SET DEFAULT ROLE ALL EXCEPT role1, role2 TO user
 ```
 
-## 1.3 Build clickhouse cluster
-### 1.3.1 Data replication
+## 1.4 Build clickhouse cluster
+### 1.4.1 Data replication
 https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/replication/
 https://clickhouse.com/docs/en/getting-started/tutorial/
+## 1.5 Grpc in python
+# 2. Distributed File Systems:
+https://juicefs.com/blog/en/posts/distributed-filesystem-comparison/
