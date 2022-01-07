@@ -1,3 +1,3 @@
 # fast download and upload tool(Golang)
-github link: https://github.com/hjiangsse/blazing
+github link: https://github.com/mjcjiang/blazing
 

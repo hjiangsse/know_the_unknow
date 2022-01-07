@@ -375,5 +375,119 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
 ```
 Same as the privious running result!
 
+## 4.3 memory profile:
+Do memory profiling could be very slow compare to cpu profiling, be careful! 
+### package install:
+pip install -U memory_profiler
+### profile line-by-line memory usage:
+Example Code: mem_prifile.py
+``` python
+@profile
+def my_func():
+    a = [1] * (10 ** 6)
+    b = [2] * (2 * 10 ** 7)
+    del b
+    return a
+
+if __name__ == '__main__':
+    my_func()
+```
+
+Run code:
+``` bash
+python -m memory_profiler mem_profile.py
+```
+
+Running result:
+``` bash
+Filename: mem_profile.py
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+     1   40.422 MiB   40.422 MiB           1   @profile
+     2                                         def my_func():
+     3   48.055 MiB    7.633 MiB           1       a = [1] * (10 ** 6)
+     4  200.645 MiB  152.590 MiB           1       b = [2] * (2 * 10 ** 7)
+     5   48.055 MiB -152.590 MiB           1       del b
+     6   48.055 MiB    0.000 MiB           1       return a
+```
+* Mem usage: after the line of code, the memory usage of the programe.
+* Increment: how many memory difference caused by this line of code.
+
+### profile with decorator:
+Code:
+``` python
+from memory_profiler import profile
+
+@profile
+def my_func():
+    a = [1] * (10 ** 6)
+    b = [2] * (2 * 10 ** 7)
+    del b
+    return a
+	
+if __name__ == '__main__':
+    my_func()
+```
+
+Run code:
+``` bash
+python mem_profile.py
+```
+
+Running result:
+``` bash
+Filename: mem_profile.py
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+     3     40.4 MiB     40.4 MiB           1   @profile
+     4                                         def my_func():
+     5     48.0 MiB      7.6 MiB           1       a = [1] * (10 ** 6)
+     6    200.6 MiB    152.6 MiB           1       b = [2] * (2 * 10 ** 7)
+     7     48.0 MiB   -152.6 MiB           1       del b
+     8     48.0 MiB      0.0 MiB           1       return a
+```
+The result is just the same as the line-by-line mode.
+### time-based memory usage:
+Sometimes it is useful to have full memory usage reports as a function of time (not line-by-line) 
+of external processes (be it Python scripts or not). In this case the executable mprof might be useful.
+Code:
+``` python
+@profile
+def my_func():
+    a = [1] * (10 ** 6)
+    b = [2] * (2 * 10 ** 7)
+    del b
+    return a
+
+@profile
+def your_func():
+    c = [1] * (10 ** 6)
+    d = [2] * (2 * 10 ** 7)
+    del d
+    return c
+
+if __name__ == '__main__':
+    my_func()
+    your_func()
+```
+
+Run time-based profile:
+``` bash
+mprof run mem_profile.py
+```
+This is the command output:
+```
+mprof: Sampling memory every 0.1s
+running new process
+running as a Python program...
+```
+
+Now do memory usage plot:
+```bash
+mprof plot --flame
+```
+
+This is the memory profile graph:
+![mem_profile_graph](./pic/memprofile/mem_profile.png)
 # 5. Python grpc:
 python -m grpc_tools.protoc -I../proto --python_out=. --grpc_python_out=. ../proto/service.proto
