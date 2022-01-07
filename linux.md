@@ -1,4 +1,4 @@
-# Use dd and hdparm to measure device read/write performance:
+# 1. Use dd and hdparm to measure device read/write performance:
 ## Write speed test
 ``` bash
 dd if=/dev/zero of=/tmp/test1.img bs=1G count=1 oflag=dsync
@@ -35,3 +35,16 @@ For meaningful results, this operation should be repeated 2-3 times on an otherw
 inactive system (no other active processes) with at least a couple of megabytes of free memory.
 
 
+
+
+# 2. Iptables and rule persist:
+``` bash
+iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
+iptables -A FORWARD -i wlan0 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT
+```
+then
+```
+apt-get install iptables-persistent
+```
+then your iptable rules will be persisted.
