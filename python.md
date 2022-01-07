@@ -488,6 +488,6 @@ mprof plot --flame
 ```
 
 This is the memory profile graph:
-![mem_profile_graph](./pic/memprofile/mem_profile.png)
+![mem_profile_graph](./pics/memprofile/mem_profile.png)
 # 5. Python grpc:
 python -m grpc_tools.protoc -I../proto --python_out=. --grpc_python_out=. ../proto/service.proto
